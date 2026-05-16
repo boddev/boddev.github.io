@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="A technology blog for public GitHub projects, articles, podcasts, and notes from boddev."
+    >
+    <title>boddev | Technology Notes, Projects, Articles, and Podcasts</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="boddev home">boddev</a>
+        <div class="nav-links">
+          <a href="#projects">Repos</a>
+          <a href="#articles">Articles</a>
+          <a href="#podcasts">Podcasts</a>
+          <a href="#thoughts">Thoughts</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Build notes from the edge of software</p>
+          <h1>Projects, articles, podcasts, and practical technology thoughts.</h1>
+          <p class="hero-summary">
+            A simple home for public GitHub work, technical writing, podcast episodes,
+            and short observations about the tools and ideas shaping software.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/boddev">View GitHub</a>
+            <a class="button secondary" href="#latest">Explore latest</a>
+          </div>
+        </div>
+
+        <aside class="hero-card" aria-label="Blog focus areas">
+          <p class="card-kicker">Publishing queue</p>
+          <ul class="focus-list">
+            <li><span>01</span> Public repositories and project notes</li>
+            <li><span>02</span> Articles about cloud, AI, and developer tools</li>
+            <li><span>03</span> Podcast links and episode takeaways</li>
+            <li><span>04</span> Random technology observations</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section id="latest" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Start here</p>
+          <h2>Latest updates</h2>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <p class="tag">Project</p>
+            <h3>Public repo highlights</h3>
+            <p>
+              Track useful repos, implementation notes, and lessons learned from
+              experiments that are ready to share.
+            </p>
+            <a href="#projects">Browse repo links</a>
+          </article>
+          <article class="feature-card">
+            <p class="tag">Writing</p>
+            <h3>Technical articles</h3>
+            <p>
+              Longer-form posts for architecture decisions, workflows, and patterns
+              worth revisiting.
+            </p>
+            <a href="#articles">Read article notes</a>
+          </article>
+          <article class="feature-card">
+            <p class="tag">Audio</p>
+            <h3>Podcast index</h3>
+            <p>
+              A place to collect episode links, guests, topics, and practical
+              takeaways from conversations.
+            </p>
+            <a href="#podcasts">Find episodes</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="projects" class="section split-section">
+        <div>
+          <p class="eyebrow">Open source</p>
+          <h2>Public GitHub repos</h2>
+          <p>
+            Curated links to projects, experiments, and reference implementations.
+            Add new cards as repos are published.
+          </p>
+        </div>
+        <div class="link-panel">
+          <a class="resource-link" href="https://github.com/boddev">
+            <span>
+              <strong>GitHub profile</strong>
+              <small>All public repositories from boddev</small>
+            </span>
+            <span aria-hidden="true">-&gt;</span>
+          </a>
+          <a class="resource-link" href="https://github.com/boddev/boddev">
+            <span>
+              <strong>This site repository</strong>
+              <small>Source for the blog landing page</small>
+            </span>
+            <span aria-hidden="true">-&gt;</span>
+          </a>
+        </div>
+      </section>
+
+      <section id="articles" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Writing</p>
+          <h2>Articles</h2>
+        </div>
+        <div class="timeline">
+          <article>
+            <span class="timeline-date">Coming soon</span>
+            <h3>Architecture notes and practical software essays</h3>
+            <p>
+              Future posts can link to published articles, explain tradeoffs, and
+              capture reusable patterns from real projects.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="podcasts" class="section split-section accent">
+        <div>
+          <p class="eyebrow">Audio</p>
+          <h2>Podcasts</h2>
+          <p>
+            Episode links, guest conversations, and concise takeaways will live here
+            as new podcasts are released.
+          </p>
+        </div>
+        <div class="quote-card">
+          <p>
+            "Useful technology conversations should leave you with one idea you can
+            try the same day."
+          </p>
+        </div>
+      </section>
+
+      <section id="thoughts" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Notebook</p>
+          <h2>Random thoughts about technology</h2>
+        </div>
+        <div class="thought-grid">
+          <article>
+            <h3>Make experiments easy to revisit</h3>
+            <p>
+              A good repo link should include context: what problem it explores,
+              what changed your mind, and what you would do next.
+            </p>
+          </article>
+          <article>
+            <h3>Keep the stack boring where it matters</h3>
+            <p>
+              Novel tools are most useful when the surrounding workflow is simple
+              enough to make outcomes obvious.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>&copy; <span id="year">2026</span> boddev. Built for GitHub Pages.</p>
+      <a href="https://github.com/boddev">github.com/boddev</a>
+    </footer>
+  </body>
+</html>
