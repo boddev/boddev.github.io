@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Searchable list of public GitHub repositories from boddev, ordered by most recent commit."
+    >
+    <title>Repositories | boddev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="index.html" aria-label="boddev home">boddev</a>
+        <div class="nav-links">
+          <a href="repos.html" aria-current="page">Repos</a>
+          <a href="index.html#articles">Articles</a>
+          <a href="index.html#podcasts">Podcasts</a>
+          <a href="index.html#thoughts">Thoughts</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section id="projects" class="section repos-page">
+        <div class="section-heading repos-heading">
+          <div>
+            <p class="eyebrow">Open source</p>
+            <h1>Public GitHub repos</h1>
+            <p>
+              Live list of public repositories from
+              <a href="https://github.com/boddev" class="inline-link">github.com/boddev</a>,
+              ordered by most recent commit. Search and filter to find what you need.
+            </p>
+          </div>
+          <p class="repo-meta" id="repo-meta" aria-live="polite">Loading repositories&hellip;</p>
+        </div>
+
+        <div class="repo-toolbar" role="search">
+          <label class="repo-search" for="repo-search-input">
+            <span class="visually-hidden">Search repositories</span>
+            <svg class="repo-search-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 3a6 6 0 1 0 3.873 10.59l3.269 3.268a1 1 0 0 0 1.415-1.414l-3.269-3.269A6 6 0 0 0 9 3Z"
+              />
+            </svg>
+            <input
+              id="repo-search-input"
+              type="search"
+              placeholder="Search by name, description, or topic"
+              autocomplete="off"
+              spellcheck="false"
+            >
+          </label>
+
+          <div class="repo-filters">
+            <label class="repo-select">
+              <span>Language</span>
+              <select id="repo-filter-language">
+                <option value="">All languages</option>
+              </select>
+            </label>
+            <label class="repo-select">
+              <span>Type</span>
+              <select id="repo-filter-type">
+                <option value="all">All repos</option>
+                <option value="sources">Sources only</option>
+                <option value="forks">Forks only</option>
+                <option value="archived">Archived only</option>
+                <option value="active">Active (not archived)</option>
+              </select>
+            </label>
+            <label class="repo-select">
+              <span>Sort by</span>
+              <select id="repo-sort">
+                <option value="pushed">Most recent commit</option>
+                <option value="updated">Recently updated</option>
+                <option value="created">Newest created</option>
+                <option value="stars">Most stars</option>
+                <option value="name">Name (A&ndash;Z)</option>
+              </select>
+            </label>
+            <button type="button" class="repo-reset" id="repo-reset">Reset</button>
+          </div>
+        </div>
+
+        <div id="repo-list" class="repo-grid" aria-live="polite" aria-busy="true">
+          <div class="repo-skeleton" aria-hidden="true"></div>
+          <div class="repo-skeleton" aria-hidden="true"></div>
+          <div class="repo-skeleton" aria-hidden="true"></div>
+          <div class="repo-skeleton" aria-hidden="true"></div>
+        </div>
+
+        <p id="repo-empty" class="repo-empty" hidden>
+          No repositories match your search. Try clearing the filters.
+        </p>
+        <p id="repo-error" class="repo-error" hidden></p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>&copy; <span id="year">2026</span> boddev. Built for GitHub Pages.</p>
+      <a href="https://github.com/boddev">github.com/boddev</a>
+    </footer>
+
+    <script>
+      (function () {
+        var yearEl = document.getElementById('year');
+        if (yearEl) {
+          yearEl.textContent = String(new Date().getFullYear());
+        }
+
+        var GITHUB_USER = 'boddev';
+        var listEl = document.getElementById('repo-list');
+        var metaEl = document.getElementById('repo-meta');
+        var emptyEl = document.getElementById('repo-empty');
+        var errorEl = document.getElementById('repo-error');
+        var searchInput = document.getElementById('repo-search-input');
+        var languageSelect = document.getElementById('repo-filter-language');
+        var typeSelect = document.getElementById('repo-filter-type');
+        var sortSelect = document.getElementById('repo-sort');
+        var resetButton = document.getElementById('repo-reset');
+
+        if (!listEl) {
+          return;
+        }
+
+        var allRepos = [];
+        var state = { search: '', language: '', type: 'all', sort: 'pushed' };
+
+        function escapeHtml(value) {
+          if (value == null) return '';
+          return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        }
+
+        function formatDate(iso) {
+          if (!iso) return '';
+          var d = new Date(iso);
+          if (isNaN(d.getTime())) return '';
+          var now = new Date();
+          var diffMs = now.getTime() - d.getTime();
+          var diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+          if (diffDays <= 0) return 'today';
+          if (diffDays === 1) return 'yesterday';
+          if (diffDays < 30) return diffDays + ' days ago';
+          if (diffDays < 365) {
+            var months = Math.floor(diffDays / 30);
+            return months + (months === 1 ? ' month ago' : ' months ago');
+          }
+          var years = Math.floor(diffDays / 365);
+          return years + (years === 1 ? ' year ago' : ' years ago');
+        }
+
+        function formatNumber(n) {
+          if (n == null) return '0';
+          if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k';
+          return String(n);
+        }
+
+        function fetchAllRepos() {
+          var perPage = 100;
+          var collected = [];
+          function fetchPage(page) {
+            var url =
+              'https://api.github.com/users/' +
+              encodeURIComponent(GITHUB_USER) +
+              '/repos?per_page=' + perPage +
+              '&page=' + page +
+              '&sort=pushed&direction=desc&type=owner';
+            return fetch(url, {
+              headers: { Accept: 'application/vnd.github+json' }
+            }).then(function (resp) {
+              if (!resp.ok) {
+                throw new Error('GitHub API returned ' + resp.status);
+              }
+              return resp.json();
+            }).then(function (data) {
+              if (!Array.isArray(data)) return collected;
+              collected = collected.concat(data);
+              if (data.length === perPage && page < 5) {
+                return fetchPage(page + 1);
+              }
+              return collected;
+            });
+          }
+          return fetchPage(1);
+        }
+
+        function populateLanguages(repos) {
+          var langs = {};
+          repos.forEach(function (r) {
+            if (r.language) langs[r.language] = true;
+          });
+          var sorted = Object.keys(langs).sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+          });
+          while (languageSelect.options.length > 1) {
+            languageSelect.remove(1);
+          }
+          sorted.forEach(function (lang) {
+            var opt = document.createElement('option');
+            opt.value = lang;
+            opt.textContent = lang;
+            languageSelect.appendChild(opt);
+          });
+        }
+
+        function matchesFilters(repo) {
+          if (state.language && repo.language !== state.language) return false;
+
+          switch (state.type) {
+            case 'sources':
+              if (repo.fork) return false;
+              break;
+            case 'forks':
+              if (!repo.fork) return false;
+              break;
+            case 'archived':
+              if (!repo.archived) return false;
+              break;
+            case 'active':
+              if (repo.archived) return false;
+              break;
+          }
+
+          if (state.search) {
+            var q = state.search.toLowerCase();
+            var hay = [
+              repo.name,
+              repo.description,
+              repo.language,
+              (repo.topics || []).join(' ')
+            ].filter(Boolean).join(' ').toLowerCase();
+            if (hay.indexOf(q) === -1) return false;
+          }
+
+          return true;
+        }
+
+        function compareRepos(a, b) {
+          switch (state.sort) {
+            case 'updated':
+              return new Date(b.updated_at) - new Date(a.updated_at);
+            case 'created':
+              return new Date(b.created_at) - new Date(a.created_at);
+            case 'stars':
+              return (b.stargazers_count || 0) - (a.stargazers_count || 0);
+            case 'name':
+              return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            case 'pushed':
+            default:
+              return new Date(b.pushed_at) - new Date(a.pushed_at);
+          }
+        }
+
+        function renderRepoCard(repo) {
+          var topics = (repo.topics || []).slice(0, 5).map(function (t) {
+            return '<li class="repo-topic">' + escapeHtml(t) + '</li>';
+          }).join('');
+
+          var badges = [];
+          if (repo.fork) badges.push('<span class="repo-badge">Fork</span>');
+          if (repo.archived) badges.push('<span class="repo-badge repo-badge-muted">Archived</span>');
+          if (repo.private) badges.push('<span class="repo-badge">Private</span>');
+
+          var languageDot = repo.language
+            ? '<span class="repo-language"><span class="repo-language-dot" aria-hidden="true"></span>' +
+              escapeHtml(repo.language) + '</span>'
+            : '';
+
+          var description = repo.description
+            ? '<p class="repo-card-desc">' + escapeHtml(repo.description) + '</p>'
+            : '<p class="repo-card-desc repo-card-desc-empty">No description provided.</p>';
+
+          return (
+            '<article class="repo-card">' +
+              '<header class="repo-card-head">' +
+                '<h3 class="repo-card-title">' +
+                  '<a href="' + escapeHtml(repo.html_url) + '" target="_blank" rel="noopener">' +
+                    escapeHtml(repo.name) +
+                  '</a>' +
+                '</h3>' +
+                (badges.length ? '<div class="repo-badges">' + badges.join('') + '</div>' : '') +
+              '</header>' +
+              description +
+              (topics ? '<ul class="repo-topics">' + topics + '</ul>' : '') +
+              '<footer class="repo-card-foot">' +
+                languageDot +
+                '<span class="repo-stat" title="Stars">' +
+                  '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">' +
+                    '<path fill="currentColor" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>' +
+                  '</svg>' +
+                  formatNumber(repo.stargazers_count) +
+                '</span>' +
+                '<span class="repo-stat" title="Forks">' +
+                  '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">' +
+                    '<path fill="currentColor" d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>' +
+                  '</svg>' +
+                  formatNumber(repo.forks_count) +
+                '</span>' +
+                '<span class="repo-updated" title="Last commit on ' +
+                  escapeHtml(repo.pushed_at || '') + '">Updated ' +
+                  escapeHtml(formatDate(repo.pushed_at)) +
+                '</span>' +
+              '</footer>' +
+            '</article>'
+          );
+        }
+
+        function render() {
+          var filtered = allRepos.filter(matchesFilters).sort(compareRepos);
+          listEl.setAttribute('aria-busy', 'false');
+          listEl.classList.remove('is-loading');
+
+          if (filtered.length === 0) {
+            listEl.innerHTML = '';
+            emptyEl.hidden = false;
+          } else {
+            emptyEl.hidden = true;
+            listEl.innerHTML = filtered.map(renderRepoCard).join('');
+          }
+
+          if (metaEl) {
+            metaEl.textContent =
+              'Showing ' + filtered.length + ' of ' + allRepos.length +
+              ' repositories \u00B7 sorted by ' + sortSelect.options[sortSelect.selectedIndex].text.toLowerCase();
+          }
+        }
+
+        function showError(message) {
+          listEl.innerHTML = '';
+          listEl.setAttribute('aria-busy', 'false');
+          listEl.classList.remove('is-loading');
+          if (metaEl) metaEl.textContent = '';
+          errorEl.hidden = false;
+          errorEl.textContent = message;
+        }
+
+        function debounce(fn, wait) {
+          var t;
+          return function () {
+            var args = arguments;
+            clearTimeout(t);
+            t = setTimeout(function () { fn.apply(null, args); }, wait);
+          };
+        }
+
+        searchInput.addEventListener('input', debounce(function (e) {
+          state.search = e.target.value.trim();
+          render();
+        }, 120));
+
+        languageSelect.addEventListener('change', function (e) {
+          state.language = e.target.value;
+          render();
+        });
+
+        typeSelect.addEventListener('change', function (e) {
+          state.type = e.target.value;
+          render();
+        });
+
+        sortSelect.addEventListener('change', function (e) {
+          state.sort = e.target.value;
+          render();
+        });
+
+        resetButton.addEventListener('click', function () {
+          state = { search: '', language: '', type: 'all', sort: 'pushed' };
+          searchInput.value = '';
+          languageSelect.value = '';
+          typeSelect.value = 'all';
+          sortSelect.value = 'pushed';
+          render();
+        });
+
+        listEl.classList.add('is-loading');
+        fetchAllRepos()
+          .then(function (repos) {
+            allRepos = repos || [];
+            populateLanguages(allRepos);
+            render();
+          })
+          .catch(function (err) {
+            showError(
+              'Could not load repositories from GitHub (' + (err && err.message ? err.message : 'unknown error') +
+              '). You can browse them directly at github.com/' + GITHUB_USER + '.'
+            );
+          });
+      })();
+    </script>
+  </body>
+</html>

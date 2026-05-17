@@ -21,7 +21,7 @@
       <nav class="nav" aria-label="Primary navigation">
         <a class="brand" href="#top" aria-label="boddev home">boddev</a>
         <div class="nav-links">
-          <a href="#projects">Repos</a>
+          <a href="repos.html">Repos</a>
           <a href="#articles">Articles</a>
           <a href="#podcasts">Podcasts</a>
           <a href="#thoughts">Thoughts</a>
@@ -39,7 +39,7 @@
             and short observations about the tools and ideas shaping software.
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="https://github.com/boddev">View GitHub</a>
+            <a class="button primary" href="repos.html">Browse repositories</a>
             <a class="button secondary" href="#latest">Explore latest</a>
           </div>
         </div>
@@ -68,7 +68,7 @@
               Track useful repos, implementation notes, and lessons learned from
               experiments that are ready to share.
             </p>
-            <a href="#projects">Browse repo links</a>
+            <a href="repos.html">Browse repos</a>
           </article>
           <article class="feature-card">
             <p class="tag">Writing</p>
@@ -96,22 +96,22 @@
           <p class="eyebrow">Open source</p>
           <h2>Public GitHub repos</h2>
           <p>
-            Curated links to projects, experiments, and reference implementations.
-            Add new cards as repos are published.
+            A live, searchable list of public repositories, ordered by most recent
+            commit. Filter by language or repo type and jump straight to the source.
           </p>
         </div>
         <div class="link-panel">
-          <a class="resource-link" href="https://github.com/boddev">
+          <a class="resource-link" href="repos.html">
             <span>
-              <strong>GitHub profile</strong>
-              <small>All public repositories from boddev</small>
+              <strong>Open the repositories page</strong>
+              <small>Search, filter, and sort all public repos in one place</small>
             </span>
             <span aria-hidden="true">-&gt;</span>
           </a>
-          <a class="resource-link" href="https://github.com/boddev/boddev">
+          <a class="resource-link" href="https://github.com/boddev">
             <span>
-              <strong>This site repository</strong>
-              <small>Source for the blog landing page</small>
+              <strong>GitHub profile</strong>
+              <small>View boddev directly on GitHub</small>
             </span>
             <span aria-hidden="true">-&gt;</span>
           </a>
@@ -180,5 +180,14 @@
       <p>&copy; <span id="year">2026</span> boddev. Built for GitHub Pages.</p>
       <a href="https://github.com/boddev">github.com/boddev</a>
     </footer>
+
+    <script>
+      (function () {
+        var yearEl = document.getElementById('year');
+        if (yearEl) {
+          yearEl.textContent = String(new Date().getFullYear());
+        }
+      })();
+    </script>
   </body>
 </html>
